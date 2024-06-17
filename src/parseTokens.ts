@@ -44,6 +44,8 @@ function createMathJSNode(token: Token, children: math.MathNode[] = []): math.Ma
     case TokenType.Underscore:
       return new math.AccessorNode(children[0], new math.IndexNode(children.slice(1)));
     // mathjs built-in functions
+    case TokenType.Delta:
+    case TokenType.Sigma:
     case TokenType.Bar:
     case TokenType.Sqrt:
     case TokenType.Sin:
@@ -184,7 +186,7 @@ class Parser {
      *
      * factor => MINUS? power
      *
-     * power => primary (CARET primary)*
+     * power => SIGMA? DELTA? primary (CARET primary)*
      *
      * primary => grouping
      *          | environnment
@@ -389,16 +391,33 @@ class Parser {
   /**
      * Consume the next power according to the following production:
      *
-     * power => subscript (CARET primary)*
+     * power => SIGMA? DELTA? subscript (CARET primary)*
      * @returns The root node of an expression tree.
      */
   nextPower(): math.MathNode {
+    let sigma;
+    let delta;
+    if (this.match(TokenType.Sigma)) {
+      sigma = this.nextToken();
+    }
+    if (this.match(TokenType.Delta)) {
+      delta = this.nextToken();
+    }
+
     let base = this.nextSubscript();
     while (this.match(TokenType.Caret)) {
       const caret = this.nextToken();
       const exponent = this.nextPrimary();
       base = createMathJSNode(caret, [base, exponent]);
     }
+
+    if (delta !== undefined) {
+      base = createMathJSNode(delta, [base]);
+    }
+    if (sigma !== undefined) {
+      base = createMathJSNode(sigma, [base]);
+    }
+
     return base;
   }
 
