@@ -1,5 +1,6 @@
 import tokenizeTex from './tokenizeTex';
 import parseTokens from './parseTokens';
+import { importMath } from './customMath';
 
 // scope used by evaluateTex to resolve identifiers
 type Scope = { [key: string]: any };
@@ -25,5 +26,6 @@ function evaluateTex(texStr: string, scope?: Scope) {
 export {
   parseTex,
   evaluateTex,
+  importMath as import,
   Scope,
 };

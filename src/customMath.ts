@@ -36,3 +36,5 @@ const units = (math as any).Unit.UNITS;
 Object.keys(units).forEach((unit) => { delete units[unit]; });
 
 export default math;
+
+export const importMath = math.import.bind(math);
